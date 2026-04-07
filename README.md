@@ -1,7 +1,7 @@
 
-  # Food Management UI Design
+  # FoodShare
 
-  This is a code bundle for Food Management UI Design. The original project is available at https://www.figma.com/design/z0H4JWTx7p2iqu09u8o5cy/Food-Management-UI-Design.
+ Our Project is available at https://tinyurl.com/Food-Share-AIT .
 
   ## Running the code
 
