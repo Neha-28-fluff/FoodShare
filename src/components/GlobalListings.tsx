@@ -1,5 +1,8 @@
-import { Package, MapPin, AlertCircle, Clock, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Package, MapPin, AlertCircle, Clock, ExternalLink, MessageCircle } from 'lucide-react';
 import type { FoodItem, User } from '../App';
+import ReviewsList from './ReviewsList';
+import UserReputation from './UserReputation';
 
 interface GlobalListingsProps {
   items: FoodItem[];
@@ -8,6 +11,12 @@ interface GlobalListingsProps {
 }
 
 export default function GlobalListings({ items, currentUser, onReserveClick }: GlobalListingsProps) {
+  const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
+
+  const toggleReviews = (id: string) => {
+    setExpandedReviews(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   // Sort items by freshness (newest available first)
   const sortedItems = [...items].sort((a, b) => 
     new Date(a.expiry).getTime() - new Date(b.expiry).getTime()
@@ -32,21 +41,26 @@ export default function GlobalListings({ items, currentUser, onReserveClick }: G
           <p className="text-gray-500 mt-2 text-lg">Check back soon for new cross-network available food.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
           {sortedItems.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-2xl p-6 shadow-md border-2 border-blue-50 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
+              className="bg-white rounded-2xl p-6 shadow-md border-2 border-blue-50 hover:border-blue-300 hover:shadow-xl transition-all duration-200 flex flex-col"
             >
               <div className="flex justify-between items-start mb-4 border-b border-gray-100 pb-3">
                 <h4 className="font-bold text-xl text-gray-900 truncate pr-4">{item.name}</h4>
                 <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase rounded-full tracking-wider whitespace-nowrap border border-green-200">System Wide</span>
               </div>
               
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center text-gray-800 font-semibold">
-                  <Package className="w-5 h-5 mr-3 text-blue-500" />
-                  <span className="truncate">Donor: {item.donorName}</span>
+              <div className="space-y-4 mb-6 flex-grow">
+                <div className="flex flex-col text-gray-800 font-semibold gap-1">
+                  <div className="flex items-center">
+                    <Package className="w-5 h-5 mr-3 text-blue-500" />
+                    <span className="truncate">Donor: {item.donorName}</span>
+                  </div>
+                  <div className="ml-8">
+                    <UserReputation userId={item.donorId} />
+                  </div>
                 </div>
                 <div className="flex items-start text-gray-700">
                   <MapPin className="w-5 h-5 mr-3 mt-0.5 text-blue-500 shrink-0" />
@@ -58,10 +72,30 @@ export default function GlobalListings({ items, currentUser, onReserveClick }: G
                 </div>
               </div>
 
+              {currentUser && (
+                <div className="mb-4">
+                  <button 
+                    onClick={() => toggleReviews(item.id)}
+                    className="flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                  >
+                    <MessageCircle className="w-5 h-5 mr-1" />
+                    {expandedReviews[item.id] ? 'Hide Reviews' : 'Show Comments & Reviews'}
+                  </button>
+                </div>
+              )}
+
+              {expandedReviews[item.id] && currentUser && (
+                  <ReviewsList 
+                      foodItemId={item.id} 
+                      currentUserId={currentUser.id} 
+                      currentUserName={currentUser.name} 
+                  />
+              )}
+
               {currentUser?.type === 'receiver' && onReserveClick && (
                 <button
                   onClick={() => onReserveClick(item)}
-                  className="w-full py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center space-x-2 text-lg"
+                  className="mt-4 w-full py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center space-x-2 text-lg"
                 >
                   <Package className="w-6 h-6" />
                   <span>Reserve Now</span>

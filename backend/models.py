@@ -58,3 +58,25 @@ class FoodItem(db.Model):
                 } for slot in self.slots
             ]
         }
+
+class Review(db.Model):
+    id = db.Column(db.String(100), primary_key=True)
+    food_item_id = db.Column(db.String(100), db.ForeignKey('food_item.id'), nullable=False)
+    target_user_id = db.Column(db.String(100), nullable=True) # User receiving this review
+    author_id = db.Column(db.String(100), nullable=False)
+    author_name = db.Column(db.String(100), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.String(50), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'foodItemId': self.food_item_id,
+            'targetUserId': self.target_user_id,
+            'authorId': self.author_id,
+            'authorName': self.author_name,
+            'rating': self.rating,
+            'comment': self.comment,
+            'timestamp': self.timestamp
+        }

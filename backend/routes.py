@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from extensions import db, socketio
-from models import User, FoodItem, PickupSlot
+from models import User, FoodItem, PickupSlot, Review
 from uuid import uuid4
 
 main = Blueprint('main', __name__)
@@ -14,11 +14,6 @@ def login():
     
     user = User.query.filter_by(email=email).first()
     if not user:
-        if user_type == 'admin':
-            admin_key = data.get('adminKey')
-            if admin_key != 'FOOD_SYS_ADMIN_2026':
-                return jsonify({'error': 'Invalid Admin Secret Key'}), 401
-                
         # Create user if doesn't exist
         user = User(
             id=str(uuid4()),
@@ -142,3 +137,42 @@ def delete_food(item_id):
     
     socketio.emit('food_updated', {'action': 'deleted', 'id': item_id})
     return jsonify({'success': True})
+
+@main.route('/api/reviews/<item_id>', methods=['GET'])
+def get_reviews(item_id):
+    reviews = Review.query.filter_by(food_item_id=item_id).order_by(Review.timestamp.desc()).all()
+    return jsonify([review.to_dict() for review in reviews])
+
+@main.route('/api/reviews', methods=['POST'])
+def add_review():
+    data = request.json
+    new_review = Review(
+        id=str(uuid4()),
+        food_item_id=data['foodItemId'],
+        target_user_id=data.get('targetUserId'),
+        author_id=data['authorId'],
+        author_name=data['authorName'],
+        rating=data['rating'],
+        comment=data.get('comment', ''),
+        timestamp=data['timestamp']
+    )
+    db.session.add(new_review)
+    db.session.commit()
+    
+    socketio.emit('review_added', {'item_id': data['foodItemId'], 'review': new_review.to_dict()})
+    return jsonify(new_review.to_dict()), 201
+
+@main.route('/api/user/<user_id>/reputation', methods=['GET'])
+def get_user_reputation(user_id):
+    reviews = Review.query.filter_by(target_user_id=user_id).all()
+    if not reviews:
+        return jsonify({'averageRating': 0, 'totalReviews': 0, 'reviews': []})
+        
+    total_rating = sum(r.rating for r in reviews)
+    avg_rating = total_rating / len(reviews)
+    
+    return jsonify({
+        'averageRating': round(avg_rating, 1),
+        'totalReviews': len(reviews),
+        'reviews': [r.to_dict() for r in reviews]
+    })

@@ -5,9 +5,8 @@ import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import DonorDashboard from './components/DonorDashboard';
 import ReceiverDashboard from './components/ReceiverDashboard';
-import AdminDashboard from './components/AdminDashboard';
 
-export type UserType = 'donor' | 'receiver' | 'admin' | null;
+export type UserType = 'donor' | 'receiver' | null;
 
 export interface User {
   id: string;
@@ -250,15 +249,7 @@ export default function App() {
           onUpdateUser={handleUpdateUser}
           onLogout={handleLogout}
         />
-      ) : (
-        <AdminDashboard 
-          user={currentUser}
-          foodItems={foodItems}
-          onUpdateFood={updateFoodItem}
-          onUpdateUser={handleUpdateUser}
-          onLogout={handleLogout}
-        />
-      )}
+      ) : null}
       <Toaster position="top-center" richColors />
     </>
   );

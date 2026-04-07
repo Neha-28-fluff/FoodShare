@@ -6,7 +6,9 @@ import AddFoodForm from './AddFoodForm';
 import UserProfile from './UserProfile';
 import GlobalListings from './GlobalListings';
 import NotificationPanel from './NotificationPanel';
-
+import ReviewsList from './ReviewsList';
+import UserReputation from './UserReputation';
+import { MessageCircle } from 'lucide-react';
 interface AppNotification {
   id: string;
   type: 'push' | 'email' | 'sms';
@@ -40,6 +42,11 @@ export default function DonorDashboard({
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState<'my_donations' | 'global' | 'requests'>('my_donations');
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
+
+  const toggleReviews = (id: string) => {
+    setExpandedReviews(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const myDonations = foodItems.filter(item => item.status === 'available' || item.status === 'expired');
   const reservedRequests = foodItems.filter(item => item.status === 'reserved');
@@ -218,10 +225,10 @@ export default function DonorDashboard({
         <div className="mb-6 flex gap-4 border-b-2 border-gray-200 pb-4 overflow-x-auto">
           <button
             onClick={() => setActiveTab('my_donations')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap border-2 ${
               activeTab === 'my_donations'
-                ? 'bg-green-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
             }`}
           >
             <Package className="w-6 h-6" />
@@ -229,10 +236,10 @@ export default function DonorDashboard({
           </button>
           <button
             onClick={() => setActiveTab('global')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap border-2 ${
               activeTab === 'global'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
             }`}
           >
             <Globe className="w-6 h-6" />
@@ -240,10 +247,10 @@ export default function DonorDashboard({
           </button>
           <button
             onClick={() => setActiveTab('requests')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap border-2 ${
               activeTab === 'requests'
-                ? 'bg-yellow-500 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
             }`}
           >
             <ClipboardList className="w-6 h-6" />
@@ -261,7 +268,7 @@ export default function DonorDashboard({
               {reservedRequests.length === 0 ? <p className="text-gray-500 italic">No pending reservations.</p> : (
                 <div className="grid gap-6">
                   {reservedRequests.map((item) => (
-                    <div key={item.id} className="bg-yellow-50 rounded-2xl p-6 shadow-md border-2 border-yellow-200">
+                    <div key={item.id} className="bg-white rounded-2xl p-6 shadow-md border-l-8 border-yellow-400 border-y border-r border-gray-200">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-3 h-3 bg-yellow-500 rounded-full" />
@@ -269,7 +276,11 @@ export default function DonorDashboard({
                         </div>
                         <span className="px-4 py-2 rounded-full font-semibold bg-yellow-100 text-yellow-800 border-yellow-300">Reserved</span>
                       </div>
-                      <p className="text-gray-600 mb-4">A receiver has requested this item. Please approve their reservation to coordinate pickup.</p>
+                      <p className="text-gray-600 mb-2">A receiver has requested this item. Please approve their reservation to coordinate pickup.</p>
+                      <div className="mb-4 bg-white/50 p-3 rounded-lg flex items-center shadow-sm">
+                        <span className="font-semibold text-gray-700 mr-3">Receiver Reputation:</span>
+                        <UserReputation userId={item.reservedBy} />
+                      </div>
                       <div className="flex gap-4 flex-wrap">
                         <button onClick={() => handleApproveReservation(item.id)} className="px-6 py-3 flex items-center bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors">
                           <ThumbsUp className="w-5 h-5 mr-2" /> Approve Reservation
@@ -292,7 +303,7 @@ export default function DonorDashboard({
               {approvedRequests.length === 0 ? <p className="text-gray-500 italic">No approved items waiting for pickup.</p> : (
                 <div className="grid gap-6">
                   {approvedRequests.map((item) => (
-                    <div key={item.id} className="bg-blue-50 rounded-2xl p-6 shadow-md border-2 border-blue-200">
+                    <div key={item.id} className="bg-white rounded-2xl p-6 shadow-md border-l-8 border-blue-500 border-y border-r border-gray-200">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-3 h-3 bg-blue-500 rounded-full" />
@@ -318,10 +329,31 @@ export default function DonorDashboard({
               {pickedRequests.length === 0 ? <p className="text-gray-500 italic">No picked items yet.</p> : (
                 <div className="grid gap-6 opacity-60">
                   {pickedRequests.map((item) => (
-                    <div key={item.id} className="bg-gray-100 rounded-2xl p-6 shadow-sm border border-gray-200">
-                      <div className="flex justify-between items-center">
-                        <p className="text-xl font-bold text-gray-700 line-through">{item.name}</p>
-                        <span className="px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-800 border-emerald-300">Picked</span>
+                    <div key={item.id} className="bg-white rounded-2xl p-6 shadow-md border-l-8 border-emerald-500 border-y border-r border-gray-200">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xl font-bold text-gray-700 line-through">{item.name}</p>
+                          <span className="px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-800 border-emerald-300">Picked</span>
+                        </div>
+
+                        <button 
+                          onClick={() => toggleReviews(item.id)}
+                          className="self-start flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors mt-2"
+                        >
+                          <MessageCircle className="w-5 h-5 mr-1" />
+                          {expandedReviews[item.id] ? 'Hide Discussion' : 'Rate & Review This Receiver'}
+                        </button>
+                        
+                        {expandedReviews[item.id] && (
+                            <div className="opacity-100">
+                                <ReviewsList 
+                                    foodItemId={item.id} 
+                                    currentUserId={user.id} 
+                                    currentUserName={user.name} 
+                                    targetUserId={item.reservedBy}
+                                />
+                            </div>
+                        )}
                       </div>
                     </div>
                   ))}

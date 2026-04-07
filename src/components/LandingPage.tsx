@@ -14,7 +14,7 @@ export default function LandingPage({ onSelectUserType }: LandingPageProps) {
           <p className="text-xl text-gray-600">Connect donors with those in need</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {/* Donor Card */}
           <button
             onClick={() => onSelectUserType('donor')}
@@ -53,24 +53,6 @@ export default function LandingPage({ onSelectUserType }: LandingPageProps) {
             </div>
           </button>
 
-          {/* Admin Card */}
-          <button
-            onClick={() => onSelectUserType('admin')}
-            className="group bg-white rounded-3xl p-10 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
-          >
-            <div className="flex flex-col items-center space-y-6">
-              <div className="w-32 h-32 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                <Users className="w-16 h-16 text-purple-600" />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-800">Admin Panel</h2>
-              <p className="text-gray-600 text-center text-lg">
-                Manage platform and view analytics
-              </p>
-              <div className="mt-4 px-8 py-3 bg-purple-600 text-white rounded-full font-semibold text-lg group-hover:bg-purple-700 transition-colors">
-                Continue
-              </div>
-            </div>
-          </button>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ from flask_cors import CORS
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'my_super_secret_dev_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_v2.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     CORS(app)
@@ -13,7 +13,7 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*")
 
     with app.app_context():
-        from models import User, FoodItem, PickupSlot
+        from models import User, FoodItem, PickupSlot, Review
         from routes import main
         app.register_blueprint(main)
         

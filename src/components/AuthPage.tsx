@@ -14,8 +14,7 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
     name: '',
     email: '',
     password: '',
-    address: '',
-    adminKey: ''
+    address: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,16 +41,15 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
       type: userType,
       latitude: lat,
       longitude: lng,
-      address: formData.address,
-      adminKey: formData.adminKey
+      address: formData.address
     };
     
     onLogin(user);
   };
 
-  const bgColor = userType === 'donor' ? 'from-green-50 to-emerald-50' : userType === 'receiver' ? 'from-blue-50 to-cyan-50' : 'from-purple-50 to-indigo-50';
-  const accentColor = userType === 'donor' ? 'green' : userType === 'receiver' ? 'blue' : 'purple';
-  const focusBorderClass = userType === 'donor' ? 'focus:border-green-500' : userType === 'receiver' ? 'focus:border-blue-500' : 'focus:border-purple-500';
+  const bgColor = userType === 'donor' ? 'from-green-50 to-emerald-50' : 'from-blue-50 to-cyan-50';
+  const accentColor = userType === 'donor' ? 'green' : 'blue';
+  const focusBorderClass = userType === 'donor' ? 'focus:border-green-500' : 'focus:border-blue-500';
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${bgColor} flex items-center justify-center p-4`}>
@@ -70,7 +68,7 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
               {isLogin ? 'Welcome Back' : 'Create Account'}
             </h2>
             <p className="text-gray-600 text-lg">
-              {userType === 'donor' ? 'Donor' : userType === 'receiver' ? 'Receiver' : 'Admin'} Portal
+              {userType === 'donor' ? 'Donor' : 'Receiver'} Portal
             </p>
           </div>
 
@@ -105,21 +103,6 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
                 />
               </div>
 
-              {userType === 'admin' && (
-                <div>
-                  <label className="block text-purple-700 text-lg font-bold mb-2">
-                    Admin Verification Key
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.adminKey}
-                    onChange={(e) => setFormData({ ...formData, adminKey: e.target.value })}
-                    className={`w-full px-4 py-3 text-lg border-2 border-purple-400 rounded-xl focus:border-purple-600 focus:outline-none bg-purple-50`}
-                    placeholder="Enter the secret organization key"
-                  />
-                </div>
-              )}
               </>
             )}
 
@@ -157,13 +140,13 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
               type="submit"
               className={`w-full bg-${accentColor}-600 hover:bg-${accentColor}-700 text-white font-bold py-4 px-6 rounded-xl text-lg flex items-center justify-center space-x-2 transition-colors`}
               style={{
-                backgroundColor: userType === 'donor' ? '#059669' : userType === 'receiver' ? '#2563eb' : '#9333ea',
+                backgroundColor: userType === 'donor' ? '#059669' : '#2563eb',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = userType === 'donor' ? '#047857' : userType === 'receiver' ? '#1d4ed8' : '#7e22ce';
+                e.currentTarget.style.backgroundColor = userType === 'donor' ? '#047857' : '#1d4ed8';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = userType === 'donor' ? '#059669' : userType === 'receiver' ? '#2563eb' : '#9333ea';
+                e.currentTarget.style.backgroundColor = userType === 'donor' ? '#059669' : '#2563eb';
               }}
             >
               {isLogin ? <LogIn className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />}

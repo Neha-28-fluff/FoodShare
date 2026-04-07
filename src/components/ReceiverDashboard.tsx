@@ -5,6 +5,9 @@ import type { User, FoodItem } from '../App';
 import NotificationPanel from './NotificationPanel';
 import UserProfile from './UserProfile';
 import GlobalListings from './GlobalListings';
+import ReviewsList from './ReviewsList';
+import UserReputation from './UserReputation';
+import { MessageCircle } from 'lucide-react';
 
 interface ReceiverDashboardProps {
   user: User;
@@ -36,6 +39,11 @@ export default function ReceiverDashboard({
   const [smartRecommendations, setSmartRecommendations] = useState<FoodItem[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [prevStatuses, setPrevStatuses] = useState<Record<string, string>>({});
+  const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
+
+  const toggleReviews = (id: string) => {
+    setExpandedReviews(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -364,10 +372,10 @@ export default function ReceiverDashboard({
         <div className="mb-6 flex gap-4 border-b-2 border-gray-200 pb-4 overflow-x-auto">
           <button
             onClick={() => setActiveTab('nearby')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap border-2 ${
               activeTab === 'nearby'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
             }`}
           >
             <MapPin className="w-6 h-6" />
@@ -375,10 +383,10 @@ export default function ReceiverDashboard({
           </button>
           <button
             onClick={() => setActiveTab('global')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap border-2 ${
               activeTab === 'global'
-                ? 'bg-purple-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
             }`}
           >
             <Globe className="w-6 h-6" />
@@ -386,10 +394,10 @@ export default function ReceiverDashboard({
           </button>
           <button
             onClick={() => setActiveTab('requests')}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap ${
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-lg transition-colors shadow-sm whitespace-nowrap border-2 ${
               activeTab === 'requests'
-                ? 'bg-yellow-500 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
             }`}
           >
             <ClipboardList className="w-6 h-6" />
@@ -431,7 +439,7 @@ export default function ReceiverDashboard({
               {approvedItems.length === 0 ? <p className="text-gray-500 italic">No approved pickups at the moment.</p> : (
                 <div className="grid gap-6">
                   {approvedItems.map((item) => (
-                    <div key={item.id} className="bg-emerald-50 rounded-2xl p-6 shadow-md border-2 border-emerald-300">
+                    <div key={item.id} className="bg-white rounded-2xl p-6 shadow-md border-l-8 border-emerald-400 border-y border-r border-gray-200">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-3 h-3 bg-emerald-500 rounded-full" />
@@ -460,10 +468,31 @@ export default function ReceiverDashboard({
               {receivedItems.length === 0 ? <p className="text-gray-500 italic">No completed pickups yet.</p> : (
                 <div className="grid gap-6 opacity-60">
                   {receivedItems.map((item) => (
-                    <div key={item.id} className="bg-gray-100 rounded-2xl p-6 shadow-sm border border-gray-200">
-                      <div className="flex justify-between items-center">
-                        <p className="text-xl font-bold text-gray-700 line-through">{item.name}</p>
-                        <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-600">Completed</span>
+                    <div key={item.id} className="bg-white rounded-2xl p-6 shadow-md border-l-8 border-gray-400 border-y border-r border-gray-200">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xl font-bold text-gray-700 line-through">{item.name}</p>
+                          <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-600">Completed</span>
+                        </div>
+                        
+                        <button 
+                          onClick={() => toggleReviews(item.id)}
+                          className="self-start flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors mt-2"
+                        >
+                          <MessageCircle className="w-5 h-5 mr-1" />
+                          {expandedReviews[item.id] ? 'Hide Discussion' : 'Rate & Review This Pickup'}
+                        </button>
+                        
+                        {expandedReviews[item.id] && (
+                            <div className="opacity-100">
+                                <ReviewsList 
+                                    foodItemId={item.id} 
+                                    currentUserId={user.id} 
+                                    currentUserName={user.name} 
+                                    targetUserId={item.donorId}
+                                />
+                            </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -507,10 +536,13 @@ export default function ReceiverDashboard({
                     </span>
                   </div>
 
-                  <div className="bg-blue-50 rounded-xl p-4 mb-4">
-                    <p className="text-lg font-semibold text-gray-700">
-                      Donated by: {item.donorName}
-                    </p>
+                  <div className="bg-blue-50 rounded-xl p-4 mb-4 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                        <p className="text-lg font-semibold text-gray-700">
+                        Donated by: {item.donorName}
+                        </p>
+                        <UserReputation userId={item.donorId} />
+                    </div>
                     <p className="text-gray-600 mt-1">📍 {calculateDistance(item)} km away</p>
                   </div>
 
