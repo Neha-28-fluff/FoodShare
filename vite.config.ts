@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 
   export default defineConfig({
     plugins: [react()],
+    optimizeDeps: { force: true },
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
