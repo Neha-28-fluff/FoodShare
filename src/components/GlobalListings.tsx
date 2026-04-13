@@ -8,9 +8,23 @@ interface GlobalListingsProps {
   items: FoodItem[];
   currentUser?: User;
   onReserveClick?: (item: FoodItem) => void;
+  reservingItem?: { item: FoodItem, slotId?: string } | null;
+  receiverPhone?: string;
+  onPhoneChange?: (val: string) => void;
+  onConfirmReserve?: () => void;
+  onCancelReserve?: () => void;
 }
 
-export default function GlobalListings({ items, currentUser, onReserveClick }: GlobalListingsProps) {
+export default function GlobalListings({ 
+  items, 
+  currentUser, 
+  onReserveClick,
+  reservingItem,
+  receiverPhone,
+  onPhoneChange,
+  onConfirmReserve,
+  onCancelReserve
+}: GlobalListingsProps) {
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
 
   const toggleReviews = (id: string) => {
@@ -61,6 +75,12 @@ export default function GlobalListings({ items, currentUser, onReserveClick }: G
                   <div className="ml-8">
                     <UserReputation userId={item.donorId} />
                   </div>
+                  {item.donorContact && (
+                    <div className="flex items-center text-green-700 bg-green-50 p-2 rounded-lg mt-2">
+                       <span className="font-bold mr-2">📞</span>
+                       <span className="truncate">{item.donorContact}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-start text-gray-700">
                   <MapPin className="w-5 h-5 mr-3 mt-0.5 text-blue-500 shrink-0" />
@@ -93,13 +113,47 @@ export default function GlobalListings({ items, currentUser, onReserveClick }: G
               )}
 
               {currentUser?.type === 'receiver' && onReserveClick && (
-                <button
-                  onClick={() => onReserveClick(item)}
-                  className="mt-4 w-full py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center space-x-2 text-lg"
-                >
-                  <Package className="w-6 h-6" />
-                  <span>Reserve Now</span>
-                </button>
+                reservingItem?.item.id === item.id ? (
+                  <div className="w-full bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mt-4 animate-in slide-in-from-top-2 duration-200">
+                    <p className="text-gray-800 font-bold text-lg mb-2">Confirm Your Reservation</p>
+                    <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                      Contact Number (Shared with Donor)
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={receiverPhone || ''}
+                      onChange={(e) => onPhoneChange?.(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border-2 border-blue-300 rounded-xl focus:outline-none text-base mb-2"
+                      placeholder="e.g., +91 9876543210"
+                    />
+                    <p className="text-sm text-gray-500 mb-4 italic">
+                      The donor will use this number to coordinate the pickup with you.
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={onConfirmReserve}
+                        className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={onCancelReserve}
+                        className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => onReserveClick(item)}
+                    className="mt-4 w-full py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center space-x-2 text-lg"
+                  >
+                    <Package className="w-6 h-6" />
+                    <span>Reserve Now</span>
+                  </button>
+                )
               )}
             </div>
           ))}

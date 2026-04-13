@@ -36,22 +36,24 @@ def seed_data(db, User, FoodItem, PickupSlot):
     donor1_id = str(uuid.uuid4())
     donor2_id = str(uuid.uuid4())
     
-    donor1 = User(id=donor1_id, name='Green Valley Restaurant', email='donor1@test.com', type='donor')
-    donor2 = User(id=donor2_id, name='Sunrise Bakery', email='donor2@test.com', type='donor')
-    receiver1 = User(id=str(uuid.uuid4()), name='John Doe', email='receiver1@test.com', type='receiver', preferences='vegetables,bread')
+    donor1 = User(id=donor1_id, name='Green Valley Restaurant', email='donor1@test.com', type='donor', phone='+91 9988776655')
+    donor2 = User(id=donor2_id, name='Sunrise Bakery', email='donor2@test.com', type='donor', phone='+91 9876543210')
+    receiver1 = User(id=str(uuid.uuid4()), name='John Doe', email='receiver1@test.com', type='receiver', phone='+91 9000010000', preferences='vegetables,bread')
     
     db.session.add_all([donor1, donor2, receiver1])
     
     item1 = FoodItem(
         id=str(uuid.uuid4()), donor_id=donor1_id, donor_name=donor1.name, name='Fresh Vegetables',
-        quantity='5 kg', expiry='2026-02-13', expiry_time='18:00', status='available',
+        quantity='5 kg', expiry='2026-04-30', expiry_time='18:00', status='available',
+        donor_contact='+91 9988776655',
         location='Downtown', latitude=40.7128, longitude=-74.0060, created_at=datetime.utcnow().isoformat()
     )
     
     item2 = FoodItem(
         id=str(uuid.uuid4()), donor_id=donor2_id, donor_name=donor2.name, name='Bread & Pastries',
-        quantity='20 pieces', expiry='2026-02-12', expiry_time='20:00', status='reserved',
-        reserved_by=receiver1.id, location='Main Street', latitude=40.7128, longitude=-74.0060, created_at=datetime.utcnow().isoformat()
+        quantity='20 pieces', expiry='2026-04-29', expiry_time='20:00', status='reserved',
+        reserved_by=receiver1.id, donor_contact='+91 9876543210', receiver_contact='+91 9000010000',
+        location='Main Street', latitude=40.7128, longitude=-74.0060, created_at=datetime.utcnow().isoformat()
     )
     
     db.session.add_all([item1, item2])

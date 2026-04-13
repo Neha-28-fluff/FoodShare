@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogOut, MapPin, List, Calendar, Clock, Package, AlertCircle, Bell, TrendingUp, Zap, User as UserIcon, Globe, ClipboardList, CheckCircle } from 'lucide-react';
+import { LogOut, MapPin, List, Calendar, Clock, Package, AlertCircle, Bell, TrendingUp, Zap, User as UserIcon, Globe, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { User, FoodItem } from '../App';
 import NotificationPanel from './NotificationPanel';
@@ -40,6 +40,8 @@ export default function ReceiverDashboard({
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [prevStatuses, setPrevStatuses] = useState<Record<string, string>>({});
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
+  const [reservingItem, setReservingItem] = useState<{item: FoodItem, slotId?: string} | null>(null);
+  const [receiverPhone, setReceiverPhone] = useState(user.phone || '');
 
   const toggleReviews = (id: string) => {
     setExpandedReviews(prev => ({ ...prev, [id]: !prev[id] }));
@@ -200,6 +202,18 @@ export default function ReceiverDashboard({
   }, [foodItems, user]);
 
   const handleReserve = (item: FoodItem, slotId?: string) => {
+    setReservingItem({ item, slotId });
+  };
+
+  const confirmReservation = () => {
+    if (!reservingItem) return;
+    const { item, slotId } = reservingItem;
+    
+    if (!receiverPhone) {
+      toast.error('Please provide a contact number');
+      return;
+    }
+
     // Update slot availability if slot is selected
     let updatedSlots = item.pickupSlots;
     if (slotId) {
@@ -211,8 +225,11 @@ export default function ReceiverDashboard({
     onUpdateFood(item.id, { 
       status: 'reserved', 
       reservedBy: user.id,
+      receiverContact: receiverPhone,
       pickupSlots: updatedSlots
     });
+    
+    setReservingItem(null);
     
     // Multi-channel notification simulation
     toast.success('🎉 Food reserved successfully!', {
@@ -220,19 +237,10 @@ export default function ReceiverDashboard({
       duration: 5000
     });
 
-    // Simulate email notification
-    setTimeout(() => {
-      toast.info('📧 Email confirmation sent', {
-        description: 'Check your email for pickup details'
-      });
-    }, 1000);
-
-    // Simulate SMS notification
-    setTimeout(() => {
-      toast.info('📱 SMS notification sent', {
-        description: 'You will receive pickup reminders'
-      });
-    }, 2000);
+    // Update local user phone if it was empty
+    if (!user.phone && onUpdateUser) {
+      onUpdateUser({ phone: receiverPhone });
+    }
   };
 
   const handleCancelReservation = (item: FoodItem) => {
@@ -454,6 +462,15 @@ export default function ReceiverDashboard({
                           <p className="text-sm text-gray-600">Head to {item.location}</p>
                         </div>
                       </div>
+                      {item.donorContact && (
+                        <div className="mt-4 bg-blue-50 p-4 rounded-xl flex items-center shadow-sm">
+                           <span className="text-2xl mr-3">📞</span>
+                           <div>
+                             <p className="text-sm text-blue-600 font-semibold uppercase">Donor Contact</p>
+                             <p className="text-xl font-bold text-blue-800">{item.donorContact}</p>
+                           </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -504,7 +521,12 @@ export default function ReceiverDashboard({
           <GlobalListings 
             items={availableItems} 
             currentUser={user} 
-            onReserveClick={(item) => handleReserve(item)} 
+            onReserveClick={(item) => handleReserve(item)}
+            reservingItem={reservingItem}
+            receiverPhone={receiverPhone}
+            onPhoneChange={setReceiverPhone}
+            onConfirmReserve={confirmReservation}
+            onCancelReserve={() => setReservingItem(null)}
           />
         ) : (
         <div>
@@ -544,6 +566,11 @@ export default function ReceiverDashboard({
                         <UserReputation userId={item.donorId} />
                     </div>
                     <p className="text-gray-600 mt-1">📍 {calculateDistance(item)} km away</p>
+                    {item.donorContact && (
+                       <p className="text-green-700 font-semibold mt-1 flex items-center">
+                         <span className="mr-2">📞</span> Donor Contact: {item.donorContact}
+                       </p>
+                    )}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
@@ -590,16 +617,81 @@ export default function ReceiverDashboard({
                           </button>
                         ))}
                       </div>
+                      
+                      {reservingItem?.item.id === item.id && reservingItem?.slotId && (
+                        <div className="w-full bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mt-4 animate-in slide-in-from-top-2 duration-200">
+                          <p className="text-gray-800 font-bold text-lg mb-2">Confirm Slot Reservation</p>
+                          <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                            Contact Number (Shared with Donor)
+                          </label>
+                          <input
+                            type="tel"
+                            required
+                            value={receiverPhone}
+                            onChange={(e) => setReceiverPhone(e.target.value)}
+                            className="w-full px-4 py-3 bg-white border-2 border-blue-300 rounded-xl focus:outline-none text-base mb-2"
+                            placeholder="e.g., +91 9876543210"
+                          />
+                          <div className="flex gap-3 mt-4">
+                            <button
+                              onClick={confirmReservation}
+                              className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setReservingItem(null)}
+                              className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  <button
-                    onClick={() => handleReserve(item)}
-                    className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors"
-                  >
-                    <Package className="w-6 h-6" />
-                    <span>Reserve This Food</span>
-                  </button>
+                  {reservingItem?.item.id === item.id && !reservingItem?.slotId ? (
+                    <div className="w-full bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mt-4 animate-in slide-in-from-top-2 duration-200">
+                      <p className="text-gray-800 font-bold text-lg mb-2">Confirm Your Reservation</p>
+                      <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                        Contact Number (Shared with Donor)
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={receiverPhone}
+                        onChange={(e) => setReceiverPhone(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border-2 border-blue-300 rounded-xl focus:outline-none text-base mb-2"
+                        placeholder="e.g., +91 9876543210"
+                      />
+                      <p className="text-sm text-gray-500 mb-4 italic">
+                        The donor will use this number to coordinate the pickup with you.
+                      </p>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={confirmReservation}
+                          className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          onClick={() => setReservingItem(null)}
+                          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleReserve(item)}
+                      className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors"
+                    >
+                      <Package className="w-6 h-6" />
+                      <span>Reserve This Food</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -609,6 +701,7 @@ export default function ReceiverDashboard({
         </>
         )}
       </div>
+
     </div>
   );
 }

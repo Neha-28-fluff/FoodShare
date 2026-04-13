@@ -12,7 +12,8 @@ export default function UserProfile({ user, onUpdate, onClose }: UserProfileProp
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
-    address: user.address || ''
+    address: user.address || '',
+    phone: user.phone || ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -64,6 +65,17 @@ export default function UserProfile({ user, onUpdate, onClose }: UserProfileProp
              value={formData.address}
              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+           />
+        </div>
+
+        <div>
+           <label className="block text-gray-700 font-semibold mb-2">Phone Number</label>
+           <input
+             type="tel"
+             value={formData.phone}
+             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+             className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+             placeholder="e.g., +91 9876543210"
            />
         </div>
 

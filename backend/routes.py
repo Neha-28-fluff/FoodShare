@@ -22,7 +22,8 @@ def login():
             type=user_type,
             latitude=data.get('latitude', 40.7128),
             longitude=data.get('longitude', -74.0060),
-            address=data.get('address')
+            address=data.get('address'),
+            phone=data.get('phone')
         )
         db.session.add(user)
         db.session.commit()
@@ -35,6 +36,7 @@ def login():
         'latitude': user.latitude,
         'longitude': user.longitude,
         'address': user.address,
+        'phone': user.phone,
         'preferences': user.preferences.split(',') if user.preferences else []
     })
 
@@ -49,6 +51,8 @@ def update_user(user_id):
         user.email = data['email']
     if 'address' in data:
         user.address = data['address']
+    if 'phone' in data:
+        user.phone = data['phone']
         
     db.session.commit()
     
@@ -60,6 +64,7 @@ def update_user(user_id):
         'latitude': user.latitude,
         'longitude': user.longitude,
         'address': user.address,
+        'phone': user.phone,
         'preferences': user.preferences.split(',') if user.preferences else []
     })
 
@@ -83,6 +88,7 @@ def add_food():
         latitude=data['latitude'],
         longitude=data['longitude'],
         created_at=data['createdAt'],
+        donor_contact=data.get('donorContact'),
         status='available'
     )
     
@@ -115,6 +121,8 @@ def update_food(item_id):
         item.status = data['status']
     if 'reservedBy' in data:
         item.reserved_by = data['reservedBy']
+    if 'receiverContact' in data:
+        item.receiver_contact = data['receiverContact']
         
     if 'pickupSlots' in data:
         for slot_data in data['pickupSlots']:

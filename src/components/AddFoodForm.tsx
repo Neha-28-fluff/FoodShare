@@ -7,9 +7,10 @@ interface AddFoodFormProps {
   onCancel: () => void;
   userLat?: number;
   userLng?: number;
+  defaultPhone?: string;
 }
 
-export default function AddFoodForm({ onSubmit, onCancel, userLat, userLng }: AddFoodFormProps) {
+export default function AddFoodForm({ onSubmit, onCancel, userLat, userLng, defaultPhone }: AddFoodFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     quantity: '',
@@ -18,6 +19,7 @@ export default function AddFoodForm({ onSubmit, onCancel, userLat, userLng }: Ad
     location: '',
     latitude: userLat || 40.7128,
     longitude: userLng || -74.0060,
+    donorContact: defaultPhone || '',
     createdAt: new Date().toISOString()
   });
 
@@ -44,24 +46,6 @@ export default function AddFoodForm({ onSubmit, onCancel, userLat, userLng }: Ad
 
   const handleLocationChange = (location: string) => {
     setFormData({ ...formData, location });
-    
-    // Simulate geocoding - in real app, use Google Maps Geocoding API
-    const mockCoordinates: { [key: string]: { lat: number; lng: number } } = {
-      'downtown': { lat: 40.7128, lng: -74.0060 },
-      'main street': { lat: 40.7580, lng: -73.9855 },
-      'uptown': { lat: 40.7829, lng: -73.9654 },
-      'brooklyn': { lat: 40.6782, lng: -73.9442 },
-      'queens': { lat: 40.7282, lng: -73.7949 }
-    };
-
-    const key = location.toLowerCase();
-    if (mockCoordinates[key]) {
-      setFormData(prev => ({
-        ...prev,
-        latitude: mockCoordinates[key].lat,
-        longitude: mockCoordinates[key].lng
-      }));
-    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -161,17 +145,23 @@ export default function AddFoodForm({ onSubmit, onCancel, userLat, userLng }: Ad
             value={formData.location}
             onChange={(e) => handleLocationChange(e.target.value)}
             className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none"
-            placeholder="e.g., Downtown, Main Street, Brooklyn"
-            list="location-suggestions"
+            placeholder="e.g., 123 Main St, Your City"
           />
-          <datalist id="location-suggestions">
-            <option value="Downtown" />
-            <option value="Main Street" />
-            <option value="Uptown" />
-            <option value="Brooklyn" />
-            <option value="Queens" />
-          </datalist>
+        </div>
 
+        <div>
+           <label className="block text-gray-700 text-lg font-semibold mb-2">
+             Contact Number
+           </label>
+           <input
+             type="tel"
+             required
+             value={formData.donorContact}
+             onChange={(e) => setFormData({ ...formData, donorContact: e.target.value })}
+             className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none"
+             placeholder="e.g., +91 9876543210"
+           />
+           <p className="text-sm text-gray-500 mt-1">This number will be shared with the receiver once they request the food.</p>
         </div>
 
         {/* Pickup Slots */}

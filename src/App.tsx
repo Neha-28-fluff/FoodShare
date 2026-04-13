@@ -16,6 +16,7 @@ export interface User {
   latitude?: number;
   longitude?: number;
   address?: string;
+  phone?: string;
   preferences?: string[];
   isBanned?: boolean;
 }
@@ -39,6 +40,8 @@ export interface FoodItem {
   status: 'available' | 'reserved' | 'approved' | 'expired' | 'completed';
   reservedBy?: string;
   location: string;
+  donorContact?: string;
+  receiverContact?: string;
   latitude: number;
   longitude: number;
   createdAt: string;

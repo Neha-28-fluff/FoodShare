@@ -8,6 +8,7 @@ class User(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     address = db.Column(db.String(255), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
     preferences = db.Column(db.String(255), nullable=True)
 
 class PickupSlot(db.Model):
@@ -31,6 +32,8 @@ class FoodItem(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.String(50), nullable=False)
+    donor_contact = db.Column(db.String(20), nullable=True)
+    receiver_contact = db.Column(db.String(20), nullable=True)
     
     slots = db.relationship('PickupSlot', backref='food_item', lazy=True, cascade="all, delete-orphan")
 
@@ -49,6 +52,8 @@ class FoodItem(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'createdAt': self.created_at,
+            'donorContact': self.donor_contact,
+            'receiverContact': self.receiver_contact,
             'pickupSlots': [
                 {
                     'id': slot.id,

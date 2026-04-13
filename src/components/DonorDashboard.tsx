@@ -199,6 +199,7 @@ export default function DonorDashboard({
             onCancel={() => setShowAddForm(false)}
             userLat={user.latitude}
             userLng={user.longitude}
+            defaultPhone={user.phone}
           />
         )}
 
@@ -281,6 +282,10 @@ export default function DonorDashboard({
                         <span className="font-semibold text-gray-700 mr-3">Receiver Reputation:</span>
                         <UserReputation userId={item.reservedBy} />
                       </div>
+                      <div className="mb-4 bg-blue-50 p-3 rounded-lg flex items-center shadow-sm">
+                        <span className="font-semibold text-blue-700 mr-3">Receiver Contact:</span>
+                        <span className="text-blue-800 text-lg">{item.receiverContact || 'Not provided'}</span>
+                      </div>
                       <div className="flex gap-4 flex-wrap">
                         <button onClick={() => handleApproveReservation(item.id)} className="px-6 py-3 flex items-center bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors">
                           <ThumbsUp className="w-5 h-5 mr-2" /> Approve Reservation
@@ -312,6 +317,10 @@ export default function DonorDashboard({
                         <span className="px-4 py-2 rounded-full font-semibold bg-blue-100 text-blue-800 border-blue-300">Approved</span>
                       </div>
                       <p className="text-gray-600 mb-4">You have approved this. Waiting for the receiver to arrive and pick it up.</p>
+                      <div className="mb-4 bg-green-50 p-3 rounded-lg flex items-center shadow-sm">
+                        <span className="font-semibold text-green-700 mr-3">Receiver Contact:</span>
+                        <span className="text-green-800 text-lg font-bold">{item.receiverContact || 'Not provided'}</span>
+                      </div>
                       <button onClick={() => handleMarkComplete(item.id)} className="px-6 py-3 flex items-center bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors">
                         <CheckCircle className="w-5 h-5 mr-2" /> Mark as Picked
                       </button>

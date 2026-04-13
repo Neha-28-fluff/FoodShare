@@ -14,7 +14,8 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
     name: '',
     email: '',
     password: '',
-    address: ''
+    address: '',
+    phone: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +42,8 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
       type: userType,
       latitude: lat,
       longitude: lng,
-      address: formData.address
+      address: formData.address,
+      phone: formData.phone
     };
     
     onLogin(user);
@@ -100,6 +102,20 @@ export default function AuthPage({ userType, onLogin, onBack }: AuthPageProps) {
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   className={`w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-xl ${focusBorderClass} focus:outline-none`}
                   placeholder="Enter your local area or street address"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-lg font-semibold mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  required={!isLogin}
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className={`w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-xl ${focusBorderClass} focus:outline-none`}
+                  placeholder="Enter your contact number"
                 />
               </div>
 
