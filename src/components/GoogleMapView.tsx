@@ -67,13 +67,17 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
 
           {/* Food Item Pins */}
           {items.map((item, index) => {
-            const isOverlap = item.latitude === userLocation.lat && item.longitude === userLocation.lng;
+            // Apply a diagonal offset using the index so multiple overlapping pins spread out visibly
+            // This ensures no two food pins perfectly overlap, and neither perfectly overlaps the user's center pin.
+            const latOffset = (index + 1) * 0.0015;
+            const lngOffset = (index + 1) * 0.0015;
+            
             return (
             <Marker 
               key={item.id} 
               position={[
-                isOverlap ? item.latitude + 0.002 : item.latitude, 
-                isOverlap ? item.longitude + 0.002 : item.longitude
+                item.latitude + latOffset, 
+                item.longitude + lngOffset
               ]}
               icon={foodIcon}
               zIndexOffset={10}
