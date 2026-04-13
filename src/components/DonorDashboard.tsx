@@ -8,7 +8,8 @@ import GlobalListings from './GlobalListings';
 import NotificationPanel from './NotificationPanel';
 import ReviewsList from './ReviewsList';
 import UserReputation from './UserReputation';
-import { MessageCircle } from 'lucide-react';
+import GoogleMapView from './GoogleMapView';
+import { MessageCircle, MapPin } from 'lucide-react';
 interface AppNotification {
   id: string;
   type: 'push' | 'email' | 'sms';
@@ -39,6 +40,7 @@ export default function DonorDashboard({
 }: DonorDashboardProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showLiveMap, setShowLiveMap] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState<'my_donations' | 'global' | 'requests'>('my_donations');
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -134,7 +136,16 @@ export default function DonorDashboard({
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => setShowProfile(true)}
+                onClick={() => { setShowLiveMap(!showLiveMap); setShowProfile(false); setShowAddForm(false); }}
+                className={`flex items-center space-x-2 px-6 py-3 border-2 rounded-xl font-semibold transition-colors ${
+                  showLiveMap ? 'bg-green-600 border-green-600 text-white' : 'bg-white border-green-600 text-green-600 hover:bg-green-50'
+                }`}
+              >
+                <MapPin className="w-5 h-5" />
+                <span>Live Map</span>
+              </button>
+              <button
+                onClick={() => { setShowProfile(true); setShowLiveMap(false); setShowAddForm(false); }}
                 className="flex items-center space-x-2 px-6 py-3 bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 rounded-xl font-semibold transition-colors"
               >
                 <UserIcon className="w-5 h-5" />
@@ -167,6 +178,17 @@ export default function DonorDashboard({
       <div className="max-w-7xl mx-auto px-4 py-8">
         {showProfile ? (
           <UserProfile user={user} onUpdate={(updates) => { onUpdateUser?.(updates); setShowProfile(false); }} onClose={() => setShowProfile(false)} />
+        ) : showLiveMap ? (
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+              <MapPin className="w-8 h-8 mr-3 text-green-600" />
+              Donor Live Map
+            </h2>
+            <GoogleMapView 
+              items={foodItems.filter(item => (item.status === 'approved' || item.status === 'completed') && item.donorId === user.id)} 
+              userLocation={{ lat: user.latitude || 40.7128, lng: user.longitude || -74.0060 }} 
+            />
+          </div>
         ) : (
           <>
           {showNotifications && (
