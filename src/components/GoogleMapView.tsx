@@ -116,14 +116,14 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
           </div>
           <div className="flex items-center gap-3">
             <MapPin className="w-8 h-8 text-green-600" fill="#22c55e" />
-            <span className="text-gray-700 font-semibold">Food Available</span>
+            <span className="text-gray-700 font-semibold">Approved Pickup Location</span>
           </div>
         </div>
       </div>
 
       {/* List of items below map */}
       <div className="p-6 space-y-3 z-10 relative bg-white border-t-2 border-gray-100">
-        <h4 className="font-bold text-gray-800 text-lg mb-4">Nearby Food Items</h4>
+        <h4 className="font-bold text-gray-800 text-lg mb-4">Your Scheduled Pickups</h4>
         {items.map((item, index) => (
           <div 
             key={item.id} 
@@ -140,7 +140,7 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-sm font-semibold text-gray-700">Available</span>
+              <span className="text-sm font-semibold text-gray-700">Ready for Pickup</span>
             </div>
           </div>
         ))}
