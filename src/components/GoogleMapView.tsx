@@ -65,19 +65,13 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
           />
           <ChangeView center={userLocation} />
 
-          {/* User Location Marker */}
-          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-            <Popup>
-              <div className="font-semibold text-blue-700">You are here</div>
-            </Popup>
-          </Marker>
-
           {/* Food Item Pins */}
           {items.map((item, index) => (
             <Marker 
               key={item.id} 
               position={[item.latitude, item.longitude]}
               icon={foodIcon}
+              zIndexOffset={10}
             >
               <Popup>
                 <div className="text-sm p-1">
@@ -91,6 +85,17 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
               </Popup>
             </Marker>
           ))}
+
+          {/* User Location Marker (Moved below food pins & given extreme zIndexOffset so it overlaps instead of getting buried) */}
+          <Marker 
+            position={[userLocation.lat, userLocation.lng]} 
+            icon={userIcon}
+            zIndexOffset={1000}
+          >
+            <Popup>
+              <div className="font-semibold text-blue-700">You are here</div>
+            </Popup>
+          </Marker>
         </MapContainer>
       </div>
 
