@@ -66,10 +66,15 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
           <ChangeView center={userLocation} />
 
           {/* Food Item Pins */}
-          {items.map((item, index) => (
+          {items.map((item, index) => {
+            const isOverlap = item.latitude === userLocation.lat && item.longitude === userLocation.lng;
+            return (
             <Marker 
               key={item.id} 
-              position={[item.latitude, item.longitude]}
+              position={[
+                isOverlap ? item.latitude + 0.002 : item.latitude, 
+                isOverlap ? item.longitude + 0.002 : item.longitude
+              ]}
               icon={foodIcon}
               zIndexOffset={10}
             >
@@ -84,7 +89,7 @@ export default function GoogleMapView({ items, userLocation }: GoogleMapViewProp
                 </div>
               </Popup>
             </Marker>
-          ))}
+          )})}
 
           {/* User Location Marker (Moved below food pins & given extreme zIndexOffset so it overlaps instead of getting buried) */}
           <Marker 
